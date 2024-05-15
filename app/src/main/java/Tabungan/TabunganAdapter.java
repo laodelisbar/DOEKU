@@ -1,4 +1,5 @@
 package Tabungan;
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -6,15 +7,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+
+import com.example.dashboard.R;
+
 import java.util.List;
-import android.annotation.SuppressLint;
-import android.widget.Toast;import com.example.dashboard.R;
-
-
 
 public class TabunganAdapter extends RecyclerView.Adapter<TabunganAdapter.TabunganViewHolder> {
     private Context context;
@@ -33,25 +35,35 @@ public class TabunganAdapter extends RecyclerView.Adapter<TabunganAdapter.Tabung
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TabunganViewHolder holder, @SuppressLint("RecyclerView") final int position) {
+    public void onBindViewHolder(@NonNull TabunganViewHolder holder, final int position) {
         final TabunganModel tabungan = tabunganList.get(position);
         holder.namaTextView.setText(tabungan.getNama());
         holder.nominalTextView.setText(String.valueOf(tabungan.getNominal()));
-
         holder.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Inisialisasi DatabaseHelper
                 DatabaseHelper databaseHelper = new DatabaseHelper(context);
-
-                // Hapus data tabungan berdasarkan nama dari database
                 databaseHelper.deleteAllTabungan(tabungan.getNama());
 
-                // Perbarui RecyclerView dengan data terbaru dari database
-                // Anda perlu menentukan implementasi updateTabunganListFromDatabase()
                 updateTabunganListFromDatabase();
+                notifyDataSetChanged();
             }
         });
+        if (getItemCount() == 0) {
+            // RecyclerView kosong, tampilkan gambar
+            holder.imgview.setVisibility(View.VISIBLE);
+        } else {
+            // RecyclerView tidak kosong, sembunyikan gambar
+            holder.imgview.setVisibility(View.GONE);
+        }
+    }
+
+    // Method to update an item in tabunganList at a specific position
+    public void updateItem(int position, String nama, int nominal) {
+        TabunganModel tabungan = tabunganList.get(position);
+        tabungan.setNama(nama);
+        tabungan.setNominal(nominal);
+        notifyItemChanged(position);
     }
 
 
@@ -82,13 +94,15 @@ public class TabunganAdapter extends RecyclerView.Adapter<TabunganAdapter.Tabung
 
     public class TabunganViewHolder extends RecyclerView.ViewHolder {
         public View deleteButton;
+        public ImageView imgview;
+
         TextView namaTextView, nominalTextView, detail;
         Context context; // Add a context variable
 
         public TabunganViewHolder(@NonNull View itemView) {
             super(itemView);
             context = itemView.getContext(); // Initialize context
-
+            imgview = itemView.findViewById(R.id.imv_notb);
             namaTextView = itemView.findViewById(R.id.tb_nama);
             nominalTextView = itemView.findViewById(R.id.tb_nominal);
             detail = itemView.findViewById(R.id.tb_detail);

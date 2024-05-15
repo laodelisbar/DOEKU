@@ -3,9 +3,9 @@ package Tabungan;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +23,9 @@ import com.example.dashboard.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+
 
 public class TambahTabungan extends AppCompatActivity {
     private RecyclerView recyclerViewTabungan;
@@ -37,10 +39,7 @@ public class TambahTabungan extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tambah_tabungan);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         recyclerViewTabungan = findViewById(R.id.rvtabungan);
         imgview = findViewById(R.id.imv_notb);
         tabunganList = new ArrayList<>();
@@ -128,31 +127,50 @@ public class TambahTabungan extends AppCompatActivity {
 
                 @Override
                 public void onClick(View v) {
-                    // Hapus item dari daftar
-                    tabunganList.remove(position);
-                    if (tabunganList.isEmpty()) {
-                        // List kosong, tampilkan gambar
-                        imgview.setVisibility(View.VISIBLE);
-                    }
+                    AlertDialog.Builder builder = new AlertDialog.Builder(TambahTabungan.this);
+                    builder.setMessage("Apakah Anda yakin ingin menghapus " + tabungan.getNama() + "?");
+                    builder.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Hapus item dari daftar
+                            tabunganList.remove(position);
+                            if (tabunganList.isEmpty()) {
+                                // List kosong, tampilkan gambar
+                                imgview.setVisibility(View.VISIBLE);
+                            }
 
-                    // Beritahu adapter bahwa dataset telah berubah
-                    tabunganAdapter.notifyDataSetChanged();
-                    // Beritahu adapter bahwa dataset telah berubah
+                            // Beritahu adapter bahwa dataset telah berubah
+                            notifyDataSetChanged();
+                            // Beritahu adapter bahwa dataset telah berubah
 
-                    // Hapus item dari database
-                    SQLiteDatabase db = databaseHelper.getWritableDatabase();
-                    int deletedRows = db.delete(DatabaseHelper.TABLE_TABUNGAN, DatabaseHelper.COLUMN_NAMA + "=?", new String[]{tabungan.getNama()});
-                    db.close();
+                            // Hapus item dari database
+                            SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                            int deletedRows = db.delete(DatabaseHelper.TABLE_TABUNGAN, DatabaseHelper.COLUMN_NAMA + "=?", new String[]{tabungan.getNama()});
+                            db.close();
 
-                    // Tampilkan Toast jika penghapusan berhasil
-                    if (deletedRows > 0) {
-                        Toast.makeText(TambahTabungan.this, holder.namaTextView.getText().toString() + " berhasil dihapus", Toast.LENGTH_SHORT).show();
-                    }
+                            // Tampilkan Toast jika penghapusan berhasil
+                            if (deletedRows > 0) {
+                                Toast.makeText(TambahTabungan.this, tabungan.getNama() + " berhasil dihapus", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing, just close the dialog
+                            dialog.dismiss();
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#FFB9CA"));
+
+                    // Set text color for negative button
+                    alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#FFB9CA"));
                 }
-
             });
-
         }
+
 
 
         @Override
@@ -194,13 +212,5 @@ public class TambahTabungan extends AppCompatActivity {
                 });
             }
         }
-    }
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            onBackPressed(); // Panggil metode onBackPressed()
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
