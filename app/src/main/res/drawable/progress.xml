@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Bagian hitam untuk progres yang belum diisi -->
+    <item android:id="@android:id/background">
+        <shape>
+            <solid android:color="#000000" /> <!-- Warna hitam -->
+        </shape>
+    </item>
+    <!-- Bagian pink untuk progres yang diisi -->
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <solid android:color="#ffb9ca" /> <!-- Warna pink -->
+            </shape>
+        </clip>
+    </item>
+</layer-list>
+

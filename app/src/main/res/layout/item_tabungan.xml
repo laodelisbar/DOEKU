@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_tabungan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:clickable="true"
+        android:contextClickable="true"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        app:cardBackgroundColor="@color/gray_light"
+        app:cardCornerRadius="10dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_below="@id/tb_nominal"
+                android:layout_centerInParent="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:progressDrawable="@drawable/progress" />
+
+            <TextView
+                android:id="@+id/tb_nama"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginEnd="15dp"
+                android:layout_toLeftOf="@id/delete"
+                android:text="Nama Tabungan"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tb_rp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_marginStart="15dp"
+                android:layout_below="@id/tb_nama"
+                android:textColor="@color/black"
+                android:text="Rp."
+                android:textSize="18sp"/>
+            <TextView
+                android:id="@+id/tb_nominal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="15dp"
+                android:layout_below="@id/tb_nama"
+                android:layout_toRightOf="@id/tb_rp"
+                android:textColor="@color/black"
+                android:text="0000"
+                android:textSize="18sp"/>
+            <TextView
+                android:id="@+id/tb_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/progressBar"
+                android:textColor="@color/black"
+                android:text="0%"
+                android:textSize="16sp" />
+            <TextView
+                android:id="@+id/tb_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerHorizontal="true"
+                android:layout_below="@id/tb_progress"
+                android:layout_marginRight="15dp"
+                android:textColor="@color/green"
+                android:textColorLink="@color/green"
+                android:clickable="true"
+                android:text="lihat detail >>>"
+                android:textSize="16sp"
+                android:onClick="onDetailClick" />
+
+
+
+            <ImageButton
+                android:id="@+id/delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:clickable="true"
+                android:src="@drawable/delete"
+                android:background="@color/gray_light"/>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

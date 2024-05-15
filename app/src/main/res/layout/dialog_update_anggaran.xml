@@ -1,0 +1,21 @@
+<!-- dialog_update_anggaran.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/edit_text_kategori"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Kategori" />
+
+    <EditText
+        android:id="@+id/edit_text_nominal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nominal"
+        android:inputType="number" />
+
+</LinearLayout>
