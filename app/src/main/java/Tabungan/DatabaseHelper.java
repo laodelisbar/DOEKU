@@ -50,8 +50,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteAllTabungan(String nama) {
         SQLiteDatabase db = this.getWritableDatabase();
-            db.delete("tabungan", "nama" + " = ?", new String[]{nama});
-            db.close();
-        }
+        db.delete("tabungan", "nama" + " = ?", new String[]{nama});
+        db.close();
     }
 
+    public void updateTabungan(int id, String nama, int nominal) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_NAMA, nama);
+        values.put(COLUMN_NOMINAL, nominal);
+        db.update(TABLE_TABUNGAN, values, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+        db.close();
+    }
+}
