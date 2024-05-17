@@ -1,5 +1,7 @@
 package Tabungan;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -8,11 +10,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -94,7 +98,116 @@ public class TambahTabungan extends AppCompatActivity {
 
         tabunganAdapter.notifyDataSetChanged();
     }
+    private class TabunganAdapter extends RecyclerView.Adapter<TabunganAdapter.TabunganViewHolder> {
 
+        private List<TabunganModel> tabunganList;
+
+        public TabunganAdapter(List<TabunganModel> tabunganList) {
+            this.tabunganList = tabunganList;
+        }
+
+        @NonNull
+        @Override
+        public TabunganViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tabungan, parent, false);
+            return new TabunganViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull TabunganViewHolder holder, final int position) {
+            final TabunganModel tabungan = tabunganList.get(position);
+            holder.namaTextView.setText(tabungan.getNama());
+            holder.nominalTextView.setText(String.valueOf(tabungan.getNominal()));
+            holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(TambahTabungan.this);
+                    builder.setMessage("Apakah Anda yakin ingin menghapus " + tabungan.getNama() + "?");
+                    builder.setPositiveButton("Ya", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Hapus item dari daftar
+                            tabunganList.remove(position);
+                            if (tabunganList.isEmpty()) {
+                                // List kosong, tampilkan gambar
+                                imgview.setVisibility(View.VISIBLE);
+                            }
+
+                            // Beritahu adapter bahwa dataset telah berubah
+                            notifyDataSetChanged();
+                            // Beritahu adapter bahwa dataset telah berubah
+
+                            // Hapus item dari database
+                            SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                            int deletedRows = db.delete(DatabaseHelper.TABLE_TABUNGAN, DatabaseHelper.COLUMN_NAMA + "=?", new String[]{tabungan.getNama()});
+                            db.close();
+
+                            // Tampilkan Toast jika penghapusan berhasil
+                            if (deletedRows > 0) {
+                                Toast.makeText(TambahTabungan.this, tabungan.getNama() + " berhasil dihapus", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                    builder.setNegativeButton("Tidak", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Do nothing, just close the dialog
+                            dialog.dismiss();
+                        }
+                    });
+                    android.app.AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                    alertDialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#FFB9CA"));
+
+                    // Set text color for negative button
+                    alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#FFB9CA"));
+                }
+            });
+        }
+
+
+
+        @Override
+        public int getItemCount() {
+            return tabunganList.size();
+        }
+
+        // ViewHolder for RecyclerView
+        public class TabunganViewHolder extends RecyclerView.ViewHolder {
+            public Button transparentbtn;
+            TextView namaTextView, nominalTextView, detail;
+            ImageButton deleteButton;
+            ImageView imgview;
+
+            public TabunganViewHolder(@NonNull View itemView) {
+                super(itemView);
+
+                namaTextView = itemView.findViewById(R.id.tb_nama);
+                nominalTextView = itemView.findViewById(R.id.tb_nominal);
+                deleteButton = itemView.findViewById(R.id.delete);
+                imgview = itemView.findViewById(R.id.imv_notb);
+                detail = itemView.findViewById(R.id.tb_detail);
+
+                detail.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Retrieve nama and nominal values from TextViews
+                        String nama = namaTextView.getText().toString();
+                        int nominal = Integer.parseInt(nominalTextView.getText().toString());
+
+                        // Create an Intent to start RencanaActivity
+                        Intent intent = new Intent(getApplicationContext(), RencanaActivity.class);
+                        // Add nama and nominal as extras to the Intent
+                        intent.putExtra("nama", nama);
+                        intent.putExtra("nominal", nominal);
+                        // Start the activity
+                        startActivity(intent);
+                    }
+                });
+            }
+        }
+    }
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
