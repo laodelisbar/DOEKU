@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -16,12 +15,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dashboard.R;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import Tabungan.DatabaseHelper;
+import Tabungan.TabunganAdapter;
+import Tabungan.TabunganModel;
 
 public class RencanaActivity extends AppCompatActivity {
     private TextView namaTextView, nominalTextView;
@@ -29,39 +30,31 @@ public class RencanaActivity extends AppCompatActivity {
     private int id, nominal, position;
     private List<TabunganModel> tabunganList;
     private DatabaseHelper databaseHelper;
+    private TabunganAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.rencana_tabungan);
 
-        // Get the Intent that started this activity
         Intent intent = getIntent();
-
-        // Extract the strings
         id = intent.getIntExtra("id", 0);
         nama = intent.getStringExtra("nama");
         nominal = intent.getIntExtra("nominal", 0);
         position = intent.getIntExtra("position", -1);
 
-        // Initialize database helper
         databaseHelper = new DatabaseHelper(this);
-
-        // Get references to the TextViews
         namaTextView = findViewById(R.id.rencana_nama);
         nominalTextView = findViewById(R.id.rencana_target);
 
-        // Set the text of the TextViews
         namaTextView.setText(nama);
         nominalTextView.setText(String.valueOf(nominal));
 
-        // Initialize tabunganList
-        tabunganList = new ArrayList<>(); // Initialize the list here or fill it with data
+        tabunganList = databaseHelper.getAllTabunganList();
 
-        // Set up Toolbar with navigation icon
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Enable Up button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         findViewById(R.id.update).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,19 +64,17 @@ public class RencanaActivity extends AppCompatActivity {
         });
     }
 
-    // Handle navigation when Up button is pressed in the Toolbar
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed(); // Navigate back to parent activity
+            onBackPressed();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    // Method to show the update dialog
     private void showPopupMenu() {
-        PopupMenu popupMenu = new PopupMenu(RencanaActivity.this, findViewById(R.id.update)); // Change with your anchor view id
+        PopupMenu popupMenu = new PopupMenu(RencanaActivity.this, findViewById(R.id.update));
         popupMenu.getMenuInflater().inflate(R.menu.update_menu, popupMenu.getMenu());
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
@@ -114,14 +105,24 @@ public class RencanaActivity extends AppCompatActivity {
         builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        String nama = editTextNama.getText().toString().trim();
+                        String newNama = editTextNama.getText().toString().trim();
                         String nominalStr = editTextNominal.getText().toString().trim();
-                        if (!nama.isEmpty() && !nominalStr.isEmpty()) {
-                            int nominal = Integer.parseInt(nominalStr);
-                            TabunganModel tabungan = tabunganList.get(position);
-                            tabungan.setNama(nama);
-                            tabungan.setNominal(nominal);
-                            databaseHelper.updateTabungan(tabungan.getId(), nama, nominal);
+                        if (!newNama.isEmpty() && !nominalStr.isEmpty()) {
+                            int newNominal = Integer.parseInt(nominalStr);
+                            databaseHelper.updateTabungan(id, newNama, newNominal);
+
+                            // Update the TextViews
+                            namaTextView.setText(newNama);
+                            nominalTextView.setText(String.valueOf(newNominal));
+
+                            // Update the list and notify adapter
+                            TabunganModel updatedTabungan = tabunganList.get(position);
+                            updatedTabungan.setNama(newNama);
+                            updatedTabungan.setNominal(newNominal);
+
+                            adapter.notifyDataSetChanged();
+
+                            Toast.makeText(RencanaActivity.this, "Data berhasil diupdate", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(RencanaActivity.this, "Nama dan Nominal harus diisi", Toast.LENGTH_SHORT).show();
                         }
@@ -137,10 +138,7 @@ public class RencanaActivity extends AppCompatActivity {
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
 
-        // Set text color for positive button
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#FFB9CA"));
-
-        // Set text color for negative button
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#FFB9CA"));
     }
 }

@@ -1,9 +1,12 @@
 package Tabungan;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;import com.example.dashboard.R;
+import android.database.sqlite.SQLiteOpenHelper;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
@@ -12,17 +15,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_NAMA = "nama";
     public static final String COLUMN_NOMINAL = "nominal";
-    private Context context;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.context = context;
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_TABLE = "CREATE TABLE " + TABLE_TABUNGAN + "("
-                + COLUMN_ID + "  INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + COLUMN_NAMA + " TEXT,"
                 + COLUMN_NOMINAL + " INTEGER" + ")";
         db.execSQL(CREATE_TABLE);
@@ -50,7 +51,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteAllTabungan(String nama) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete("tabungan", "nama" + " = ?", new String[]{nama});
+        db.delete(TABLE_TABUNGAN, COLUMN_NAMA + " = ?", new String[]{nama});
         db.close();
     }
 
@@ -61,5 +62,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_NOMINAL, nominal);
         db.update(TABLE_TABUNGAN, values, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
         db.close();
+    }
+
+    public List<TabunganModel> getAllTabunganList() {
+        List<TabunganModel> tabunganList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TABUNGAN, null, null, null, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
+                String nama = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_NAMA));
+                int nominal = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_NOMINAL));
+                tabunganList.add(new TabunganModel(id, nama, nominal));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return tabunganList;
     }
 }
