@@ -15,7 +15,7 @@
     <color name="green">#FF008000</color> <!-- Warna hijau -->
     <color name="red">#FFFF0000</color> <!-- Warna merah -->
     <color name="primary">#FFB9CA</color>
-    <color name="gray_light">#FFDBDBDB</color>
+    <color name="gray_light">#DFDFDF</color>
     <!-- Warna Lisbar -->
 
 </resources>
