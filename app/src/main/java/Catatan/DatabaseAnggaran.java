@@ -5,7 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import com.example.dashboard.R;
+import android.util.Log;
+
+import java.util.ArrayList;
+
 public class DatabaseAnggaran extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "AnggaranDB";
@@ -38,8 +41,16 @@ public class DatabaseAnggaran extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_KATEGORI, kategori);
         values.put(COLUMN_NOMINAL, nominal);
-        db.insert(TABLE_ANGGARAN, null, values);
+        long newRowId = db.insert(TABLE_ANGGARAN, null, values);
         db.close();
+
+        if (newRowId != -1) {
+            // Data berhasil ditambahkan
+            Log.d("DatabaseAnggaran", "Kategori berhasil ditambahkan: " + kategori);
+        } else {
+            // Data gagal ditambahkan
+            Log.e("DatabaseAnggaran", "Gagal menambahkan kategori: " + kategori);
+        }
     }
 
     public Cursor getAllAnggaran() {
@@ -61,5 +72,32 @@ public class DatabaseAnggaran extends SQLiteOpenHelper {
         db.delete(TABLE_ANGGARAN, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
         db.close();
     }
+
+
+        public int getTargetAnggaran(String kategori) {
+            // Implementasi untuk mengambil target anggaran dari database berdasarkan kategori
+            // Misalnya, Anda dapat melakukan query ke database atau mengambil dari sumber data lainnya
+            // Di sini, kami hanya mengembalikan nilai dummy 500000
+            return 500000;
+        }
+
+    public ArrayList<String> getAllCategories() {
+        ArrayList<String> categories = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(true, TABLE_ANGGARAN, new String[]{COLUMN_KATEGORI}, null, null, null, null, null, null);
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                String kategori = cursor.getString(cursor.getColumnIndex(COLUMN_KATEGORI));
+                categories.add(kategori);
+            }
+            cursor.close();
+        }
+        db.close();
+        return categories;
+    }
+
+
 }
+
+
 

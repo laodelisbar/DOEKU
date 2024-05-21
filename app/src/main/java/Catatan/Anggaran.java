@@ -4,9 +4,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -61,6 +63,16 @@ public class Anggaran extends AppCompatActivity {
         Intent intent = getIntent();
     }
 
+    public void updateTotalAnggaran() {
+        int total = 0;
+        for (AnggaranModel anggaran : anggaranList) {
+            total += anggaran.getNominal();
+        }
+
+        TextView textViewTotalAnggaran = findViewById(R.id.nominal_anggaran_total);
+        textViewTotalAnggaran.setText("Rp. " + total);
+    }
+
     private void loadDataFromDatabase() {
         anggaranList.clear(); // Clear existing data
         Cursor cursor = databaseHelper.getAllAnggaran();
@@ -72,9 +84,16 @@ public class Anggaran extends AppCompatActivity {
                 AnggaranModel anggaran = new AnggaranModel(id, kategori, nominal);
                 anggaranList.add(anggaran);
             } while (cursor.moveToNext());
+            // Set visibility of total anggaran cardview to VISIBLE if there are items
+            findViewById(R.id.cardViewTotal).setVisibility(View.VISIBLE);
+        } else {
+            // Set visibility of total anggaran cardview to GONE if there are no items
+            findViewById(R.id.cardViewTotal).setVisibility(View.GONE);
         }
+
         cursor.close();
         anggaranAdapter.notifyDataSetChanged();
+        updateTotalAnggaran(); // Update total anggaran setelah memuat data dari database
     }
 
     private void tampilkanDialogTambahAnggaran() {
@@ -98,6 +117,10 @@ public class Anggaran extends AppCompatActivity {
                     databaseHelper.addAnggaran(kategori, nominal);
                     // Refresh RecyclerView dengan memuat data ulang dari database
                     loadDataFromDatabase();
+
+                    // Tampilkan daftar kategori yang ada di dalam DatabaseAnggaran
+                    ArrayList<String> kategoriAnggaran = databaseHelper.getAllCategories();
+                    Log.d("Kategori Anggaran", "Daftar Kategori: " + kategoriAnggaran.toString());
                 } else {
                     Toast.makeText(Anggaran.this, "Silakan isi kategori dan nominal", Toast.LENGTH_SHORT).show();
                 }
@@ -114,6 +137,7 @@ public class Anggaran extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
 
     // Menangani ketika tombol kembali di toolbar diklik
     @Override

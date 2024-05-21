@@ -14,7 +14,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
-import java.util.List;import com.example.dashboard.R;
+
+import com.example.dashboard.R;
+
+import java.util.List;
 
 public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.AnggaranViewHolder> {
     private Context context;
@@ -113,6 +116,9 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
                     anggaran.setNominal(nominal);
                     databaseHelper.updateAnggaran(anggaran.getId(), kategori, nominal);
                     notifyItemChanged(position);
+
+                    // Perbarui total anggaran setelah mengedit item
+                    ((Anggaran) context).updateTotalAnggaran();
                 }
             }
         });
@@ -133,5 +139,7 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
         databaseHelper.deleteAnggaran(id);
         anggaranList.remove(position);
         notifyItemRemoved(position);
+        // Perbarui total anggaran setelah menghapus item
+        ((Anggaran) context).updateTotalAnggaran();
     }
 }

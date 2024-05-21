@@ -1,12 +1,18 @@
 package CatatanTransaksi;
 
 public class Item {
+    private int idTransaksi;
     private String kategori;
     private String harga;
 
-    public Item(String kategori, String harga) {
+    public Item(int idTransaksi, String kategori, String harga) {
+        this.idTransaksi = idTransaksi;
         this.kategori = kategori;
         this.harga = harga;
+    }
+
+    public int getIdTransaksi() {
+        return idTransaksi;
     }
 
     public String getKategori() {
@@ -16,5 +22,12 @@ public class Item {
     public String getHarga() {
         return harga;
     }
-}
 
+    public void setKategori(String kategori) {
+        this.kategori = kategori;
+    }
+
+    public void setHarga(String harga) {
+        this.harga = harga;
+    }
+}

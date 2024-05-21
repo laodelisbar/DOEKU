@@ -1,6 +1,7 @@
 package CatatanTransaksi;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class TransaksiGroup {
     private String tanggal;
@@ -27,5 +28,10 @@ public class TransaksiGroup {
     public void addTransaksi(Transaksi transaksi) {
         transaksiList.add(transaksi);
     }
+
+    public Collection<Transaksi> getTransaksiList() {
+        return transaksiList;
+    }
+
 }
 

@@ -1,11 +1,11 @@
 package CatatanTransaksi;
 
-import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
@@ -118,6 +118,7 @@ public class DatabaseTransaksi1 extends SQLiteOpenHelper {
         }
         return days;
     }
+
     public ArrayList<String> getAllNamaKategori() {
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<String> namaKategoriList1 = new ArrayList<>();
@@ -175,12 +176,12 @@ public class DatabaseTransaksi1 extends SQLiteOpenHelper {
     }
 
     // Di kelas DatabaseTransaksi
-    public ArrayList<Item> getAllItemsFromDatabase(String tanggal) {
+    public ArrayList<Item1> getAllItemsFromDatabase(String tanggal) {
         SQLiteDatabase db = this.getReadableDatabase();
-        ArrayList<Item> itemList = new ArrayList<>();
+        ArrayList<Item1> itemList = new ArrayList<>();
 
         if (db != null && db.isOpen()) {
-            String[] projection = {COLUMN_ID_KATEGORI, COLUMN_JUMLAH};
+            String[] projection = {COLUMN_ID, COLUMN_ID_KATEGORI, COLUMN_JUMLAH}; // Tambahkan COLUMN_ID
             String selection = COLUMN_TANGGAL + " = ?";
             String[] selectionArgs = {tanggal};
 
@@ -196,10 +197,11 @@ public class DatabaseTransaksi1 extends SQLiteOpenHelper {
 
             if (cursor != null) {
                 while (cursor.moveToNext()) {
+                    int idTransaksi = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_ID));
                     String kategori = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_ID_KATEGORI));
                     int jumlahUang = cursor.getInt(cursor.getColumnIndexOrThrow(COLUMN_JUMLAH));
                     String harga = "Rp. " + jumlahUang;
-                    itemList.add(new Item(kategori, harga));
+                    itemList.add(new Item1(idTransaksi, kategori, harga));
                 }
                 cursor.close();
             }
@@ -207,7 +209,6 @@ public class DatabaseTransaksi1 extends SQLiteOpenHelper {
 
         return itemList;
     }
-
 
 
     public ArrayList<String> getAllNamaSumberDana() {
@@ -238,7 +239,79 @@ public class DatabaseTransaksi1 extends SQLiteOpenHelper {
         return namaSumberDanaList;
     }
 
+    public int getTotalPengeluaran() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        int totalPengeluaran = 0;
+
+        if (db != null && db.isOpen()) {
+            // Query untuk menjumlahkan kolom jumlah_uang
+            String query = "SELECT SUM(" + COLUMN_JUMLAH + ") as total FROM " + TABLE_NAME;
+            Cursor cursor = db.rawQuery(query, null);
+
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    totalPengeluaran = cursor.getInt(cursor.getColumnIndexOrThrow("total"));
+                }
+                cursor.close();
+            }
+        }
+        return totalPengeluaran;
+    }
+
+    public int getTotalPengeluaranByCategory(String kategori) {
+        // Implementasi untuk mengambil total pengeluaran dari database berdasarkan kategori
+        // Misalnya, Anda dapat melakukan query ke database atau mengambil dari sumber data lainnya
+        // Di sini, kami hanya mengembalikan nilai dummy 200000
+        return 200000;
+    }
+
+    public boolean deleteTransaction(int idTransaksi) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        if (db != null && db.isOpen()) {
+            int result = db.delete(TABLE_NAME, COLUMN_ID + "=?", new String[]{String.valueOf(idTransaksi)});
+            db.close();
+            return result != 0; // Mengembalikan true jika penghapusan berhasil
+        } else {
+            return false; // Koneksi database tidak terbuka
+        }
+    }
+
+    public boolean updateTransaction(int idTransaksi, String namaKategori, String namaSumberDana, String tanggal, int jumlahUang) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        if (db != null && db.isOpen()) {
+            ContentValues cv = new ContentValues();
+            cv.put(COLUMN_ID_KATEGORI, namaKategori);
+            cv.put(COLUMN_SUMBER_DANA, namaSumberDana);
+            cv.put(COLUMN_TANGGAL, tanggal);
+            cv.put(COLUMN_JUMLAH, jumlahUang);
+
+            int result = db.update(TABLE_NAME, cv, COLUMN_ID + "=?", new String[]{String.valueOf(idTransaksi)});
+            db.close();
+            return result != 0;
+        } else {
+            return false;
+        }
 
 
+    }
 
+
+    public boolean deleteAllTransactions() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        if (db != null && db.isOpen()) {
+            int result = db.delete(TABLE_NAME, null, null);
+            db.close();
+            if (result == 0) {
+                Log.e("DatabaseTransaksi1", "Tidak ada baris yang dihapus");
+            } else {
+                Log.d("DatabaseTransaksi1", "Jumlah baris yang dihapus: " + result);
+            }
+            return result != 0;
+        } else {
+            Log.e("DatabaseTransaksi1", "Database tidak terbuka atau null");
+            return false;
+        }
+    }
 }

@@ -58,7 +58,7 @@ public class TransaksiAdapter1 extends RecyclerView.Adapter<TransaksiAdapter1.Tr
         holder.tvHari.setText(currentGroup.getHari());
 
         // Ambil daftar item dari database
-        ArrayList<Item> itemList = mDatabaseTransaksi.getAllItemsFromDatabase(currentGroup.getTanggal());
+        ArrayList<Item1> itemList = mDatabaseTransaksi.getAllItemsFromDatabase(currentGroup.getTanggal());
 
         // Setel daftar item ke dalam adapter
         holder.transaksiItemAdapter1.setItemList(itemList);

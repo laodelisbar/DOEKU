@@ -29,9 +29,10 @@ public class TransaksiAdapter extends RecyclerView.Adapter<TransaksiAdapter.Tran
 
     // ViewHolder untuk menampung tampilan item RecyclerView
     public static class TransaksiGroupViewHolder extends RecyclerView.ViewHolder {
-        public TextView tvTanggal, tvHari;
+        public TextView tvTanggal, tvHari, tvPemasukkan, tvPengeluaran, tvTotal;
         public RecyclerView recyclerView;
-        public ItemAdapter transaksiItemAdapter; // Tambahkan objek adapter
+        public ItemAdapter transaksiItemAdapter;
+        // Tambahkan objek adapter
 
         public TransaksiGroupViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -68,4 +69,6 @@ public class TransaksiAdapter extends RecyclerView.Adapter<TransaksiAdapter.Tran
     public int getItemCount() {
         return mTransaksiGroupList.size();
     }
+
+
 }

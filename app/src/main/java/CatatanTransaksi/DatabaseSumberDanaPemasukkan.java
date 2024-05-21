@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -20,10 +19,9 @@ public class DatabaseSumberDanaPemasukkan extends SQLiteOpenHelper {
     public static final String COLUMN_NAMA_SUMBER_DANA = "nama_sumber_dana";
     private final Context context;
 
-
     public DatabaseSumberDanaPemasukkan(@Nullable Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        this.context = context ;
+        this.context = context;
     }
 
     @Override
@@ -40,17 +38,25 @@ public class DatabaseSumberDanaPemasukkan extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-    void addSumber1 (String nama) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues cv = new ContentValues ();
-
-        cv.put(COLUMN_NAMA_SUMBER_DANA, nama);
-        long result = db.insert (TABLE_NAME, null, cv );
-        if (result == -1 ) {
-            Toast.makeText (context, "Gagal menambahkan", Toast.LENGTH_SHORT).show() ;}
-        else {
-            Toast.makeText (context, "Sumber dana berhasil ditambahkan", Toast.LENGTH_SHORT).show() ;
+    public boolean addSumber1(String nama) {
+        if (nama.isEmpty()) {
+            return false; // Data kosong
         }
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.query(TABLE_NAME, new String[]{COLUMN_NAMA_SUMBER_DANA}, COLUMN_NAMA_SUMBER_DANA + "=?", new String[]{nama}, null, null, null);
+        if (cursor.getCount() > 0) {
+            cursor.close();
+            db.close();
+            return false; // Duplikasi data
+        }
+
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_NAMA_SUMBER_DANA, nama);
+        long result = db.insert(TABLE_NAME, null, cv);
+        cursor.close();
+        db.close();
+        return result != -1; // Berhasil jika result bukan -1
     }
 
     public ArrayList<String> getAllSumberDana() {
@@ -73,4 +79,10 @@ public class DatabaseSumberDanaPemasukkan extends SQLiteOpenHelper {
 
         return sumberDanaList;
     }
+
+    public boolean deleteSumberDana(String namaSumberDana) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(TABLE_NAME, COLUMN_NAMA_SUMBER_DANA + "=?", new String[]{namaSumberDana}) > 0;
+    }
+
 }
