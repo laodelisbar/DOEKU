@@ -19,6 +19,10 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0"/>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <LinearLayout
         android:id="@+id/semuaelemen"
         android:layout_width="match_parent"
@@ -144,6 +148,7 @@
 
         </androidx.cardview.widget.CardView>
 
+
         <androidx.cardview.widget.CardView
             android:id="@+id/Saldo"
             android:layout_width="match_parent"
@@ -189,12 +194,13 @@
                         android:layout_weight="1"
                         android:inputType="number"
                         android:text="0.00"
-                        android:textSize="35dp"
+                        android:textSize="25dp"
                         android:textStyle="bold" />
 
 
 
                 </LinearLayout>
+
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvDashboard"
@@ -365,5 +371,6 @@
         </LinearLayout>
 
     </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

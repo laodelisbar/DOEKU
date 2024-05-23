@@ -160,6 +160,15 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
         builder.create().show();
     }
 
+    private void updateTotalNominalPengeluaran() {
+        int totalNominalPengeluaran = 0;
+        for (AnggaranModel anggaran : anggaranList) {
+            totalNominalPengeluaran += anggaran.getProgress();
+        }
+
+        TextView totalNominalPengeluaranTextView = ((Anggaran) context).findViewById(R.id.nominal_pengeluaranTotal);
+        totalNominalPengeluaranTextView.setText("Rp. " + totalNominalPengeluaran);
+    }
     private void deleteAnggaran(int position) {
         AnggaranModel anggaran = anggaranList.get(position);
         int id = anggaran.getId();
@@ -170,6 +179,8 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
 
         // Perbarui total anggaran setelah menghapus item
         ((Anggaran) context).updateTotalAnggaran();
+        // Perbarui total nominal pengeluaran setelah menghapus item
+        updateTotalNominalPengeluaran();
     }
 
     // Menambahkan fungsi updateProgressBar

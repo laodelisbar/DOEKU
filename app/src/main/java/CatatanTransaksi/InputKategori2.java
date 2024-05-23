@@ -3,6 +3,7 @@ package CatatanTransaksi;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -148,7 +149,21 @@ public class InputKategori2 extends AppCompatActivity {
                     Toast.makeText(InputKategori2.this, "Data berhasil disimpan", Toast.LENGTH_SHORT).show();
                     boolean isUpdated = anggaranDB.updateAnggaranProgress(kategori, jumlahUang);
                     if (isUpdated) {
-                        Toast.makeText(InputKategori2.this, "Progres anggaran diperbarui", Toast.LENGTH_SHORT).show();
+                        // Cek apakah progres sudah memenuhi target
+                        int targetAnggaran = anggaranDB.getTargetAnggaran(kategori);
+                        Cursor cursor = anggaranDB.getAnggaranByKategori(kategori);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int progress = cursor.getInt(cursor.getColumnIndex("progress"));
+                            cursor.close();
+                            if (progress >= targetAnggaran) {
+                                // Tampilkan pesan konfirmasi
+                                AlertDialog.Builder builder = new AlertDialog.Builder(InputKategori2.this);
+                                builder.setTitle("Progres Anggaran Terpenuhi");
+                                builder.setMessage("Progres anggaran untuk kategori " + kategori + " telah mencapai atau melebihi target.");
+                                builder.setPositiveButton("OK", null);
+                                builder.show();
+                            }
+                        }
                     } else {
                         Toast.makeText(InputKategori2.this, "Gagal memperbarui progres anggaran", Toast.LENGTH_SHORT).show();
                     }

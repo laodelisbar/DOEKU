@@ -57,8 +57,6 @@ public class MainActivity extends AppCompatActivity {
         // Memuat data dari database setelah inisialisasi adapter
         loadDataFromDatabase();
 
-        setData();
-
         // Mendengarkan klik tombol
         btnTransaksi.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Memuat data dari database setelah inisialisasi adapter
         loadDataFromDatabase();
+        setData();
     }
 
     // Mendapatkan data total saldo untuk setiap sumber dana
@@ -146,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setData() {
+        pieChart.clearChart();
+
         DatabaseTransaksi dbTransaksi = new DatabaseTransaksi(this);
         int totalPemasukkan = dbTransaksi.getTotalPemasukkan();
         String formattedPemasukkan = "Rp. " + totalPemasukkan;
