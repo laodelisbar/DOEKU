@@ -6,16 +6,16 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
 import java.util.ArrayList;
 
 public class DatabaseAnggaran extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2; // Update versi database
     private static final String DATABASE_NAME = "AnggaranDB";
     public static final String TABLE_ANGGARAN = "anggaran";
     public static final String COLUMN_ID = "id";
     public static final String COLUMN_KATEGORI = "kategori";
     public static final String COLUMN_NOMINAL = "nominal";
+    public static final String COLUMN_PROGRESS = "progress"; // Kolom baru
 
     public DatabaseAnggaran(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -26,14 +26,16 @@ public class DatabaseAnggaran extends SQLiteOpenHelper {
         String CREATE_TABLE = "CREATE TABLE " + TABLE_ANGGARAN + "("
                 + COLUMN_ID + " INTEGER PRIMARY KEY,"
                 + COLUMN_KATEGORI + " TEXT,"
-                + COLUMN_NOMINAL + " INTEGER" + ")";
+                + COLUMN_NOMINAL + " INTEGER,"
+                + COLUMN_PROGRESS + " INTEGER DEFAULT 0" + ")";
         db.execSQL(CREATE_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ANGGARAN);
-        onCreate(db);
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE " + TABLE_ANGGARAN + " ADD COLUMN " + COLUMN_PROGRESS + " INTEGER DEFAULT 0");
+        }
     }
 
     public void addAnggaran(String kategori, int nominal) {
@@ -41,6 +43,7 @@ public class DatabaseAnggaran extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put(COLUMN_KATEGORI, kategori);
         values.put(COLUMN_NOMINAL, nominal);
+        values.put(COLUMN_PROGRESS, 0); // Inisialisasi kolom progress
         long newRowId = db.insert(TABLE_ANGGARAN, null, values);
         db.close();
 
@@ -50,6 +53,28 @@ public class DatabaseAnggaran extends SQLiteOpenHelper {
         } else {
             // Data gagal ditambahkan
             Log.e("DatabaseAnggaran", "Gagal menambahkan kategori: " + kategori);
+        }
+    }
+
+    public boolean updateAnggaranProgress(String kategori, int jumlahUang) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT " + COLUMN_NOMINAL + ", " + COLUMN_PROGRESS + " FROM " + TABLE_ANGGARAN + " WHERE " + COLUMN_KATEGORI + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{kategori});
+
+        if (cursor.moveToFirst()) {
+            int totalAnggaran = cursor.getInt(cursor.getColumnIndex(COLUMN_NOMINAL));
+            int currentProgress = cursor.getInt(cursor.getColumnIndex(COLUMN_PROGRESS));
+            int newProgress = currentProgress + jumlahUang;
+
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_PROGRESS, newProgress);
+
+            int result = db.update(TABLE_ANGGARAN, values, COLUMN_KATEGORI + " = ?", new String[]{kategori});
+            cursor.close();
+            return result > 0;
+        } else {
+            cursor.close();
+            return false;
         }
     }
 
@@ -73,13 +98,17 @@ public class DatabaseAnggaran extends SQLiteOpenHelper {
         db.close();
     }
 
-
-        public int getTargetAnggaran(String kategori) {
-            // Implementasi untuk mengambil target anggaran dari database berdasarkan kategori
-            // Misalnya, Anda dapat melakukan query ke database atau mengambil dari sumber data lainnya
-            // Di sini, kami hanya mengembalikan nilai dummy 500000
-            return 500000;
+    public int getTargetAnggaran(String kategori) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + COLUMN_NOMINAL + " FROM " + TABLE_ANGGARAN + " WHERE " + COLUMN_KATEGORI + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{kategori});
+        if (cursor != null && cursor.moveToFirst()) {
+            int targetAnggaran = cursor.getInt(cursor.getColumnIndex(COLUMN_NOMINAL));
+            cursor.close();
+            return targetAnggaran;
         }
+        return 0;
+    }
 
     public ArrayList<String> getAllCategories() {
         ArrayList<String> categories = new ArrayList<>();
@@ -96,8 +125,12 @@ public class DatabaseAnggaran extends SQLiteOpenHelper {
         return categories;
     }
 
+    public Cursor getAnggaranByKategori(String kategori) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String[] projection = {COLUMN_NOMINAL, COLUMN_PROGRESS}; // Kolom yang ingin Anda ambil
+        String selection = COLUMN_KATEGORI + " = ?";
+        String[] selectionArgs = {kategori};
+        return db.query(TABLE_ANGGARAN, projection, selection, selectionArgs, null, null, null);
+    }
 
 }
-
-
-

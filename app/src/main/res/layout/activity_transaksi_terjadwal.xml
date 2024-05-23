@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
+    android:background="#FFFFFF"
     tools:context=".TransaksiTerjadwal">
 
     <View
         android:id="@+id/BackgroundPink"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:background="#FFC0CB"
+        android:background="#FE9AC9"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -25,26 +25,27 @@
         android:layout_height="wrap_content"
         android:text="Transaksi Terjadwal"
         android:textColor="@color/black"
-        android:textSize="26dp"
+        android:textSize="25sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/BackgroundPink"
         app:layout_constraintEnd_toEndOf="@+id/BackgroundPink"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="@+id/BackgroundPink"
         app:layout_constraintTop_toTopOf="@+id/BackgroundPink" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/tombolnotif"
-        android:layout_width="35dp"
-        android:layout_height="40dp"
+        android:layout_width="28dp"
+        android:layout_height="31dp"
         android:background="@drawable/notifikasi"
         android:gravity="center"
-        android:textSize="25dp"
+        android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="@+id/BackgroundPink"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.621"
+        app:layout_constraintHorizontal_bias="0.323"
         app:layout_constraintStart_toEndOf="@+id/textView"
         app:layout_constraintTop_toTopOf="@+id/BackgroundPink"
-        app:layout_constraintVertical_bias="0.491" />
+        app:layout_constraintVertical_bias="0.492" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTransaksi"
@@ -52,11 +53,10 @@
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/BackgroundPink"
-        app:layout_constraintVertical_bias="0.098">
-
-    </androidx.recyclerview.widget.RecyclerView>
+        app:layout_constraintVertical_bias="0.128" />
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -64,16 +64,16 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.165"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.129">
+        app:layout_constraintVertical_bias="0.145">
 
         <TextView
             android:id="@+id/statustransaksi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="25dp"
             android:text="Status"
             android:textColor="@color/black"
             android:textSize="15dp" />
@@ -90,9 +90,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
         android:layout_margin="16dp"
-        android:backgroundTint="#FFC0CB"
+        android:backgroundTint="#FE9AC9"
         android:src="@drawable/ic_add"
         android:clickable="true"
+        app:elevation="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"

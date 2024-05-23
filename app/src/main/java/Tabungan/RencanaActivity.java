@@ -20,16 +20,12 @@ import com.example.dashboard.R;
 
 import java.util.List;
 
-import Tabungan.DatabaseHelper;
-import Tabungan.TabunganAdapter;
-import Tabungan.TabunganModel;
-
 public class RencanaActivity extends AppCompatActivity {
     private TextView namaTextView, nominalTextView;
     private String nama;
     private int id, nominal, position;
     private List<TabunganModel> tabunganList;
-    private DatabaseHelper databaseHelper;
+    private DatabaseTabungan databaseTabungan;
     private TabunganAdapter adapter;
 
     @Override
@@ -43,14 +39,15 @@ public class RencanaActivity extends AppCompatActivity {
         nominal = intent.getIntExtra("nominal", 0);
         position = intent.getIntExtra("position", -1);
 
-        databaseHelper = new DatabaseHelper(this);
+        databaseTabungan = new DatabaseTabungan(this);
         namaTextView = findViewById(R.id.rencana_nama);
         nominalTextView = findViewById(R.id.rencana_target);
 
         namaTextView.setText(nama);
         nominalTextView.setText(String.valueOf(nominal));
 
-        tabunganList = databaseHelper.getAllTabunganList();
+        tabunganList = databaseTabungan.getAllTabunganList();
+        adapter = new TabunganAdapter(tabunganList);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -109,7 +106,7 @@ public class RencanaActivity extends AppCompatActivity {
                         String nominalStr = editTextNominal.getText().toString().trim();
                         if (!newNama.isEmpty() && !nominalStr.isEmpty()) {
                             int newNominal = Integer.parseInt(nominalStr);
-                            databaseHelper.updateTabungan(id, newNama, newNominal);
+                            databaseTabungan.updateTabungan(id, newNama, newNominal);
 
                             // Update the TextViews
                             namaTextView.setText(newNama);
@@ -120,7 +117,7 @@ public class RencanaActivity extends AppCompatActivity {
                             updatedTabungan.setNama(newNama);
                             updatedTabungan.setNominal(newNominal);
 
-                            adapter.notifyDataSetChanged();
+                            adapter.notifyItemChanged(position);
 
                             Toast.makeText(RencanaActivity.this, "Data berhasil diupdate", Toast.LENGTH_SHORT).show();
                         } else {

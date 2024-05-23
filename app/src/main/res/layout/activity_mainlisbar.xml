@@ -53,12 +53,13 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:background="@color/white"
-            app:tabSelectedTextColor="@color/primary"
-            app:tabTextColor="@color/black"
-            app:tabMode="fixed"
-            app:tabGravity="fill"
             app:layout_anchor="@id/toolbar"
-            app:layout_anchorGravity="bottom" />
+            app:layout_anchorGravity="bottom"
+            app:tabGravity="fill"
+            app:tabIndicatorColor="@color/primary"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/primary"
+            app:tabTextColor="@color/black" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

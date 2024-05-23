@@ -37,8 +37,8 @@ public class TabunganAdapter extends RecyclerView.Adapter<TabunganAdapter.Tabung
         holder.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseHelper databaseHelper = new DatabaseHelper(context);
-                databaseHelper.deleteAllTabungan(tabungan.getNama());
+                DatabaseTabungan databaseTabungan = new DatabaseTabungan(context);
+                databaseTabungan.deleteAllTabungan(tabungan.getNama());
                 updateTabunganListFromDatabase();
             }
         });
@@ -57,9 +57,9 @@ public class TabunganAdapter extends RecyclerView.Adapter<TabunganAdapter.Tabung
     }
 
     private void updateTabunganListFromDatabase() {
-        DatabaseHelper databaseHelper = new DatabaseHelper(context);
+        DatabaseTabungan databaseTabungan = new DatabaseTabungan(context);
         tabunganList.clear();
-        tabunganList.addAll(databaseHelper.getAllTabunganList());
+        tabunganList.addAll(databaseTabungan.getAllTabunganList());
         notifyDataSetChanged();
     }
 

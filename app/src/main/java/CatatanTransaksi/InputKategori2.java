@@ -22,8 +22,11 @@ import com.example.dashboard.R;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import Catatan.DatabaseAnggaran;
+import Tabungan.DatabaseTabungan;
+import Tabungan.TabunganModel;
 
 public class InputKategori2 extends AppCompatActivity {
 
@@ -32,7 +35,8 @@ public class InputKategori2 extends AppCompatActivity {
     Spinner kategori_pengeluaran, sumber_dana_pengeluaran;
     DatabaseTransaksi1 dbTransaksi1;
     DatabaseAnggaran anggaranDB;
-    ArrayList<String> anggaranKategoriList;
+    DatabaseTabungan tabunganDb;
+    ArrayList<String> anggaranKategoriList, tabunganKategoriList;
 
     boolean isAddButton1Clicked = false;
     boolean isAddButton2Clicked = false;
@@ -44,6 +48,7 @@ public class InputKategori2 extends AppCompatActivity {
 
         anggaranDB = new DatabaseAnggaran(this);
         dbTransaksi1 = new DatabaseTransaksi1(this);
+        tabunganDb = new DatabaseTabungan(this);
 
         nama_kategori = findViewById(R.id.etTambahKategoriPemasukkan);
         add_button1 = findViewById(R.id.btnTambahKategoriPemasukkan);
@@ -116,6 +121,7 @@ public class InputKategori2 extends AppCompatActivity {
             datePickerDialog.show();
         });
 
+        // Di dalam metode simpan pada kelas InputKategori2
         simpan.setOnClickListener(view -> {
             // Ambil nilai-nilai dari UI
             String tanggal = etTanggalPengeluaran.getText().toString(); // Mengambil tanggal dari EditText
@@ -140,6 +146,13 @@ public class InputKategori2 extends AppCompatActivity {
 
                 if (isSuccess) {
                     Toast.makeText(InputKategori2.this, "Data berhasil disimpan", Toast.LENGTH_SHORT).show();
+                    boolean isUpdated = anggaranDB.updateAnggaranProgress(kategori, jumlahUang);
+                    if (isUpdated) {
+                        Toast.makeText(InputKategori2.this, "Progres anggaran diperbarui", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(InputKategori2.this, "Gagal memperbarui progres anggaran", Toast.LENGTH_SHORT).show();
+                    }
+
                 } else {
                     Toast.makeText(InputKategori2.this, "Gagal menyimpan data", Toast.LENGTH_SHORT).show();
                 }
@@ -149,12 +162,13 @@ public class InputKategori2 extends AppCompatActivity {
 
                 if (isSuccess) {
                     Toast.makeText(InputKategori2.this, "Data berhasil diupdate", Toast.LENGTH_SHORT).show();
+
                 } else {
                     Toast.makeText(InputKategori2.this, "Gagal mengupdate data", Toast.LENGTH_SHORT).show();
                 }
             }
-        });
 
+        });
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -180,11 +194,19 @@ public class InputKategori2 extends AppCompatActivity {
         ArrayList<String> kategoriList = kategoriDB.getAllCategories();
         anggaranKategoriList = anggaranDB.getAllCategories();
 
+        DatabaseTabungan databaseTabungan = new DatabaseTabungan(this);
+        List<TabunganModel> tabunganList = databaseTabungan.getAllTabunganList();
+        ArrayList<String> tabunganNames = new ArrayList<>();
+        for (TabunganModel tabungan : tabunganList) {
+            tabunganNames.add(tabungan.getNama());
+        }
+
         DatabaseSumberDanaPemasukkan sumberDanaDB = new DatabaseSumberDanaPemasukkan(this);
         ArrayList<String> sumberDanaList = sumberDanaDB.getAllSumberDana();
 
         LinkedHashSet<String> uniqueKategoriSet = new LinkedHashSet<>(kategoriList);
         uniqueKategoriSet.addAll(anggaranKategoriList);
+        uniqueKategoriSet.addAll(tabunganNames);
         ArrayList<String> mergedKategoriList = new ArrayList<>(uniqueKategoriSet);
 
         ArrayAdapter<String> kategoriAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, mergedKategoriList);
@@ -195,25 +217,22 @@ public class InputKategori2 extends AppCompatActivity {
         sumberDanaAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sumber_dana_pengeluaran.setAdapter(sumberDanaAdapter);
 
-        kategori_pengeluaran.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        sumberDanaAdapter.addAll(tabunganNames);
+
+        sumber_dana_pengeluaran.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                String selectedCategory = kategoriAdapter.getItem(position);
+                String selectedSumberDana = sumberDanaAdapter.getItem(position);
 
-                if (anggaranKategoriList.contains(selectedCategory)) {
-                    int targetAnggaran = anggaranDB.getTargetAnggaran(selectedCategory);
-                    int totalPengeluaran = dbTransaksi1.getTotalPengeluaranByCategory(selectedCategory);
-                    double progress = (double) totalPengeluaran / targetAnggaran * 100;
-
-                    ProgressBar progressBarAnggaran = findViewById(R.id.progressBarAnggaran);
-                    TextView textViewPersentaseProgres = findViewById(R.id.persentasi_progres);
-                    if (progressBarAnggaran != null) {
-                        progressBarAnggaran.setProgress((int) progress);
-                    }
-                    if (textViewPersentaseProgres != null) {
-                        textViewPersentaseProgres.setText(String.format("%.2f%%", progress));
+                // Cari target tabungan terkait dan tampilkan di EditText jumlah uang
+                int targetTabungan = 0; // Default value jika tidak ditemukan
+                for (TabunganModel tabungan : tabunganList) {
+                    if (tabungan.getNama().equals(selectedSumberDana)) {
+                        targetTabungan = tabungan.getNominal();
+                        break;
                     }
                 }
+                jumlah_uang.setText(String.valueOf(targetTabungan)); // Set target tabungan di EditText jumlah uang
             }
 
             @Override

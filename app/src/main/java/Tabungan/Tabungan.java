@@ -1,6 +1,4 @@
 package Tabungan;
-import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,7 +12,7 @@ import androidx.appcompat.widget.Toolbar;import com.example.dashboard.R;
 public class Tabungan extends AppCompatActivity {
     private EditText inputNamaTabungan, inputNominalTabungan;
     private Button buttonSimpan;
-    private DatabaseHelper databaseHelper;
+    private DatabaseTabungan databaseTabungan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,7 +22,7 @@ public class Tabungan extends AppCompatActivity {
         inputNamaTabungan = findViewById(R.id.et_nama);
         inputNominalTabungan = findViewById(R.id.et_target);
         buttonSimpan = findViewById(R.id.btn_tb);
-        databaseHelper = new DatabaseHelper(this);
+        databaseTabungan = new DatabaseTabungan(this);
 
         buttonSimpan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,7 +52,7 @@ public class Tabungan extends AppCompatActivity {
 
         if (!nama.isEmpty() && !nominalStr.isEmpty()) {
             int nominal = Integer.parseInt(nominalStr);
-            databaseHelper.addTabungan(nama, nominal);
+            databaseTabungan.addTabungan(nama, nominal);
             Toast.makeText(Tabungan.this, "Tabungan berhasil disimpan", Toast.LENGTH_SHORT).show();
             finish();
         } else {

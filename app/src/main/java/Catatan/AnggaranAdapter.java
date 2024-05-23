@@ -2,6 +2,7 @@ package Catatan;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -9,7 +10,9 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -49,6 +52,12 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
                 showPopupMenu(holder.deleteButton, position);
             }
         });
+
+        // Panggil fungsi updateProgressBar untuk setiap item anggaran
+        updateProgressBar(holder, anggaran);
+
+        // Menghitung nominal pengeluaran berdasarkan persentase progres
+        calculateNominalPengeluaran(holder, anggaran);
     }
 
     @Override
@@ -59,12 +68,18 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
     public class AnggaranViewHolder extends RecyclerView.ViewHolder {
         TextView kategoriTextView, nominalTextView;
         ImageButton deleteButton;
+        ProgressBar progressBarAnggaran;
+        TextView tvProgressAnggaran;
+        TextView txtNominalPengeluaran;
 
         public AnggaranViewHolder(@NonNull View itemView) {
             super(itemView);
             kategoriTextView = itemView.findViewById(R.id.kategori_anggaran_txt);
             nominalTextView = itemView.findViewById(R.id.nominal_anggaran_txt);
             deleteButton = itemView.findViewById(R.id.updateDelete_anggaran);
+            progressBarAnggaran = itemView.findViewById(R.id.progressBarAnggaran);
+            tvProgressAnggaran = itemView.findViewById(R.id.persentasi_progres);
+            txtNominalPengeluaran = itemView.findViewById(R.id.nominal_pengeluaran);
         }
     }
 
@@ -109,8 +124,18 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
                 String kategori = editTextKategori.getText().toString().trim();
                 String nominalStr = editTextNominal.getText().toString().trim();
 
-                if (!kategori.isEmpty() && !nominalStr.isEmpty()) {
+                if (kategori.isEmpty() || nominalStr.isEmpty()) {
+                    Toast.makeText(context, "Silakan isi kategori dan nominal", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                try {
                     int nominal = Integer.parseInt(nominalStr);
+                    if (nominal < 0) {
+                        Toast.makeText(context, "Nominal tidak boleh negatif", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     AnggaranModel anggaran = anggaranList.get(position);
                     anggaran.setKategori(kategori);
                     anggaran.setNominal(nominal);
@@ -119,6 +144,8 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
 
                     // Perbarui total anggaran setelah mengedit item
                     ((Anggaran) context).updateTotalAnggaran();
+                } catch (NumberFormatException e) {
+                    Toast.makeText(context, "Nominal harus berupa angka", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -139,7 +166,50 @@ public class AnggaranAdapter extends RecyclerView.Adapter<AnggaranAdapter.Anggar
         databaseHelper.deleteAnggaran(id);
         anggaranList.remove(position);
         notifyItemRemoved(position);
+        notifyItemRangeChanged(position, anggaranList.size());
+
         // Perbarui total anggaran setelah menghapus item
         ((Anggaran) context).updateTotalAnggaran();
+    }
+
+    // Menambahkan fungsi updateProgressBar
+    private void updateProgressBar(AnggaranViewHolder holder, AnggaranModel anggaran) {
+        ProgressBar progressBar = holder.progressBarAnggaran;
+        TextView tvProgressAnggaran = holder.tvProgressAnggaran;
+
+        Cursor cursor = databaseHelper.getAnggaranByKategori(anggaran.getKategori());
+        if (cursor != null && cursor.moveToFirst()) {
+            int totalAnggaran = cursor.getInt(cursor.getColumnIndex("nominal"));
+            int progress = cursor.getInt(cursor.getColumnIndex("progress"));
+            cursor.close();
+
+            // Pastikan progres tidak melebihi total anggaran
+            if (progress > totalAnggaran) {
+                progress = totalAnggaran;
+
+            }
+
+            int progressPercentage = (int) ((double) progress / totalAnggaran * 100);
+            // Pastikan persentase tidak melebihi 100%
+            if (progressPercentage > 100) {
+                progressPercentage = 100;
+            }
+
+            progressBar.setProgress(progressPercentage);
+            tvProgressAnggaran.setText(progressPercentage + "%");
+
+            // Update progress in AnggaranModel
+            anggaran.setProgress(progress);
+            // Update nominal pengeluaran
+            calculateNominalPengeluaran(holder, anggaran);
+        }
+    }
+
+    private void calculateNominalPengeluaran(AnggaranViewHolder holder, AnggaranModel anggaran) {
+        int progres = anggaran.getProgress();
+        int nominalAnggaran = anggaran.getNominal();
+        double persentase = (double) progres / nominalAnggaran * 100.0;  // Corrected formula
+        double nominalPengeluaran = persentase * nominalAnggaran / 100;  // Corrected formula
+        holder.txtNominalPengeluaran.setText(String.valueOf((int) nominalPengeluaran));
     }
 }

@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +32,7 @@ public class Anggaran extends AppCompatActivity {
     private AnggaranAdapter anggaranAdapter;
     private List<AnggaranModel> anggaranList;
     private DatabaseAnggaran databaseHelper;
+    private int totalPengeluaran = 0; // Total expenditure variable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +42,13 @@ public class Anggaran extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Tampilkan tombol kembali
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true); // Show back button
 
         recyclerViewAnggaran = findViewById(R.id.recycler_view_anggaran);
         anggaranList = new ArrayList<>();
         anggaranAdapter = new AnggaranAdapter(this, anggaranList, new DatabaseAnggaran(this));
         recyclerViewAnggaran.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewAnggaran.setAdapter(anggaranAdapter);
-
         databaseHelper = new DatabaseAnggaran(this);
 
         FloatingActionButton fabAnggaran = findViewById(R.id.fab_anggaran);
@@ -73,6 +74,16 @@ public class Anggaran extends AppCompatActivity {
         textViewTotalAnggaran.setText("Rp. " + total);
     }
 
+    public void updateTotalPengeluaran() {
+        totalPengeluaran = 0;
+        for (AnggaranModel anggaran : anggaranList) {
+            totalPengeluaran += anggaran.getProgress();
+        }
+
+        TextView totalPengeluaranTextView = findViewById(R.id.nominal_pengeluaranTotal);
+        totalPengeluaranTextView.setText("Rp. " + totalPengeluaran);
+    }
+
     private void loadDataFromDatabase() {
         anggaranList.clear(); // Clear existing data
         Cursor cursor = databaseHelper.getAllAnggaran();
@@ -81,7 +92,8 @@ public class Anggaran extends AppCompatActivity {
                 int id = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseAnggaran.COLUMN_ID));
                 String kategori = cursor.getString(cursor.getColumnIndexOrThrow(DatabaseAnggaran.COLUMN_KATEGORI));
                 int nominal = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseAnggaran.COLUMN_NOMINAL));
-                AnggaranModel anggaran = new AnggaranModel(id, kategori, nominal);
+                int progress = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseAnggaran.COLUMN_PROGRESS)); // Add progress retrieval
+                AnggaranModel anggaran = new AnggaranModel(id, kategori, nominal, progress); // Pass progress to the model
                 anggaranList.add(anggaran);
             } while (cursor.moveToNext());
             // Set visibility of total anggaran cardview to VISIBLE if there are items
@@ -93,7 +105,8 @@ public class Anggaran extends AppCompatActivity {
 
         cursor.close();
         anggaranAdapter.notifyDataSetChanged();
-        updateTotalAnggaran(); // Update total anggaran setelah memuat data dari database
+        updateTotalAnggaran(); // Update total anggaran after loading data from the database
+        updateTotalPengeluaran(); // Update total expenditure after loading data from the database
     }
 
     private void tampilkanDialogTambahAnggaran() {
@@ -112,17 +125,21 @@ public class Anggaran extends AppCompatActivity {
                 String kategori = inputKategori.getText().toString().trim();
                 String nominalStr = inputNominal.getText().toString().trim();
 
-                if (!kategori.isEmpty() && !nominalStr.isEmpty()) {
+                if (kategori.isEmpty() || nominalStr.isEmpty()) {
+                    Toast.makeText(Anggaran.this, "Silakan isi kategori dan nominal", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                try {
                     int nominal = Integer.parseInt(nominalStr);
                     databaseHelper.addAnggaran(kategori, nominal);
-                    // Refresh RecyclerView dengan memuat data ulang dari database
                     loadDataFromDatabase();
 
-                    // Tampilkan daftar kategori yang ada di dalam DatabaseAnggaran
+                    // Show the list of categories in DatabaseAnggaran
                     ArrayList<String> kategoriAnggaran = databaseHelper.getAllCategories();
                     Log.d("Kategori Anggaran", "Daftar Kategori: " + kategoriAnggaran.toString());
-                } else {
-                    Toast.makeText(Anggaran.this, "Silakan isi kategori dan nominal", Toast.LENGTH_SHORT).show();
+                } catch (NumberFormatException e) {
+                    Toast.makeText(Anggaran.this, "Nominal harus berupa angka", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -138,25 +155,13 @@ public class Anggaran extends AppCompatActivity {
         dialog.show();
     }
 
-
-    // Menangani ketika tombol kembali di toolbar diklik
+    // Handling when the back button in the toolbar is clicked
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            onBackPressed(); // Panggil metode onBackPressed()
+            onBackPressed(); // Call onBackPressed() method
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 }
-
-
-
-
-
-
-
-
-
-
-

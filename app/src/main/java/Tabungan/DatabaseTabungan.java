@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class DatabaseTabungan extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "tabungan.db";
     public static final String TABLE_TABUNGAN = "tabungan";
@@ -16,7 +16,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_NAMA = "nama";
     public static final String COLUMN_NOMINAL = "nominal";
 
-    public DatabaseHelper(Context context) {
+    public DatabaseTabungan(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
