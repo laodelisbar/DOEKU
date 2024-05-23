@@ -3,8 +3,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="pemasukan">#FFA726</color>
-    <color name="pengeluaran">#66BB6A</color>
+    <color name="pemasukan">#FF000000</color>
+    <color name="pengeluaran">#FFB9CA</color>
 
     <!-- Warna Lisbar -->
     <color name="purple_200">#FFBB86FC</color>

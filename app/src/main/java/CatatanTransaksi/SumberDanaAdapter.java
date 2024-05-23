@@ -17,13 +17,7 @@ public class SumberDanaAdapter extends RecyclerView.Adapter<SumberDanaAdapter.Su
     private ArrayList<SumberDanaWithSaldo> sumberDanaList;
 
     public SumberDanaAdapter(ArrayList<SumberDanaWithSaldo> sumberDanaList) {
-        this.sumberDanaList = new ArrayList<>();
-
-        // Konversi ModelSumberDana menjadi SumberDanaWithSaldo dan tambahkan ke sumberDanaList
-        for (SumberDanaWithSaldo modelSumberDana : sumberDanaList) {
-            SumberDanaWithSaldo sumberDanaWithSaldo = new SumberDanaWithSaldo(modelSumberDana.getNamaSumberDana(), modelSumberDana.getTotalSaldo());
-            this.sumberDanaList.add(sumberDanaWithSaldo);
-        }
+        this.sumberDanaList = sumberDanaList;
     }
 
     @NonNull
@@ -37,7 +31,10 @@ public class SumberDanaAdapter extends RecyclerView.Adapter<SumberDanaAdapter.Su
     public void onBindViewHolder(@NonNull SumberDanaViewHolder holder, int position) {
         SumberDanaWithSaldo sumberDana = sumberDanaList.get(position);
         holder.namaSumberDanaTextView.setText(sumberDana.getNamaSumberDana());
-        holder.totalSaldoTextView.setText(String.valueOf(sumberDana.getTotalSaldo()));
+
+        // Menggunakan getTotalSaldoFormatted untuk mendapatkan total saldo dengan format "Rp."
+        String formattedSaldo = getTotalSaldoFormatted(sumberDana.getTotalSaldo());
+        holder.totalSaldoTextView.setText(formattedSaldo);
     }
 
     @Override
@@ -47,11 +44,13 @@ public class SumberDanaAdapter extends RecyclerView.Adapter<SumberDanaAdapter.Su
 
     public void updateData(ArrayList<SumberDanaWithSaldo> newData) {
         sumberDanaList.clear();
-        for (SumberDanaWithSaldo modelSumberDana : newData) {
-            SumberDanaWithSaldo sumberDanaWithSaldo = new SumberDanaWithSaldo(modelSumberDana.getNamaSumberDana(), modelSumberDana.getTotalSaldo());
-            sumberDanaList.add(sumberDanaWithSaldo);
-        }
+        sumberDanaList.addAll(newData);
         notifyDataSetChanged();
+    }
+
+    // Fungsi untuk menampilkan total saldo dengan format "Rp."
+    private String getTotalSaldoFormatted(int totalSaldo) {
+        return "Rp. " + totalSaldo;
     }
 
     public static class SumberDanaViewHolder extends RecyclerView.ViewHolder {

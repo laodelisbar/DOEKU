@@ -20,12 +20,13 @@ import java.util.ArrayList;
 
 import CatatanTransaksi.DatabaseSumberDanaPemasukkan;
 import CatatanTransaksi.DatabaseTransaksi;
+import CatatanTransaksi.DatabaseTransaksi1;
 import CatatanTransaksi.SumberDanaAdapter;
 import CatatanTransaksi.SumberDanaWithSaldo;
 
 public class MainActivity extends AppCompatActivity {
 
-    TextView Pengeluaran, Pemasukan;
+    TextView Pengeluaran, Pemasukan, jumlahSaldo;
     PieChart pieChart;
     Button btnTransaksi, btnCatatan, btnTabungan, btnAnggaran;
     RecyclerView recyclerView;
@@ -45,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
         btnTabungan = findViewById(R.id.bttabungan);
         btnAnggaran = findViewById(R.id.btanggaran);
         recyclerView = findViewById(R.id.rvDashboard);
+        jumlahSaldo =  findViewById(R.id.JumlahSaldo);
 
         // Inisialisasi RecyclerView dan Adapter
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -114,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         // Memuat data dari database setelah inisialisasi adapter
         loadDataFromDatabase();
-        setData();
     }
 
     // Mendapatkan data total saldo untuk setiap sumber dana
@@ -145,15 +146,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setData() {
-        Pemasukan.setText(Integer.toString(40));
-        Pengeluaran.setText(Integer.toString(30));
+        DatabaseTransaksi dbTransaksi = new DatabaseTransaksi(this);
+        int totalPemasukkan = dbTransaksi.getTotalPemasukkan();
+        String formattedPemasukkan = "Rp. " + totalPemasukkan;
+
+        DatabaseTransaksi1 dbTransaksi1 = new DatabaseTransaksi1(this);
+        int totalPengeluaran = dbTransaksi1.getTotalPengeluaran();
+        String formattedPengeluaran = "Rp. " + totalPengeluaran;
+
+        int totalSaldo = totalPemasukkan - totalPengeluaran;
+        jumlahSaldo.setText("Rp. " + totalSaldo);
+
+        Pemasukan.setText(formattedPemasukkan);
+        Pengeluaran.setText(formattedPengeluaran);
 
         pieChart.addPieSlice(new PieModel("Pemasukan",
-                Integer.parseInt(Pemasukan.getText().toString()),
-                Color.parseColor("#FFA726")));
+                totalPemasukkan,
+                Color.parseColor("#FF000000")));
         pieChart.addPieSlice(new PieModel("Pengeluaran",
-                Integer.parseInt(Pengeluaran.getText().toString()),
-                Color.parseColor("#66BB6A")));
+                totalPengeluaran,
+                Color.parseColor("#FFB9CA")));
         pieChart.startAnimation();
     }
+
+
 }

@@ -357,6 +357,16 @@ public class DatabaseTransaksi extends SQLiteOpenHelper {
         return totalSaldo;
     }
 
+    // Fungsi untuk menampilkan total saldo dengan format "Rp."
+    public String getTotalSaldoFormatted(String namaSumberDana) {
+        int totalSaldo = getTotalSaldoBySumberDana(namaSumberDana);
+        String formattedSaldo = "Rp. " + totalSaldo;
+        return formattedSaldo;
+    }
+
+
+
+
 
 
 }
