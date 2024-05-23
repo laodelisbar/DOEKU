@@ -304,6 +304,61 @@ public class DatabaseTransaksi extends SQLiteOpenHelper {
     }
 
 
+    public int getTotalSaldoBySumberDana(String namaSumberDana) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db1 = new DatabaseTransaksi1(this.context).getReadableDatabase(); // Menggunakan context dari instance
+        int totalSaldo = 0;
+
+        if (db != null && db.isOpen() && db1 != null && db1.isOpen()) {
+            String querySumTransaksi = "SELECT SUM(" + COLUMN_JUMLAH + ") as total FROM " + TABLE_NAME +
+                    " WHERE " + COLUMN_SUMBER_DANA + " = ?";
+            String querySumTransaksi1 = "SELECT SUM(" + COLUMN_JUMLAH + ") as total FROM " + DatabaseTransaksi1.TABLE_NAME +
+                    " WHERE " + COLUMN_SUMBER_DANA + " = ?";
+
+            Log.d("DatabaseTransaksi", "Query Sum Transaksi: " + querySumTransaksi);
+            Log.d("DatabaseTransaksi", "Query Sum Transaksi1: " + querySumTransaksi1);
+
+            Cursor cursorTransaksi = db.rawQuery(querySumTransaksi, new String[]{namaSumberDana});
+            Cursor cursorTransaksi1 = db1.rawQuery(querySumTransaksi1, new String[]{namaSumberDana});
+
+            int totalTransaksi = 0;
+            int totalTransaksi1 = 0;
+
+            if (cursorTransaksi != null) {
+                if (cursorTransaksi.moveToFirst()) {
+                    totalTransaksi = cursorTransaksi.getInt(cursorTransaksi.getColumnIndexOrThrow("total"));
+                    Log.d("DatabaseTransaksi", "Total Transaksi: " + totalTransaksi);
+                } else {
+                    Log.d("DatabaseTransaksi", "Cursor Transaksi kosong");
+                }
+                cursorTransaksi.close();
+            } else {
+                Log.d("DatabaseTransaksi", "Cursor Transaksi null");
+            }
+
+            if (cursorTransaksi1 != null) {
+                if (cursorTransaksi1.moveToFirst()) {
+                    totalTransaksi1 = cursorTransaksi1.getInt(cursorTransaksi1.getColumnIndexOrThrow("total"));
+                    Log.d("DatabaseTransaksi", "Total Transaksi1: " + totalTransaksi1);
+                } else {
+                    Log.d("DatabaseTransaksi", "Cursor Transaksi1 kosong");
+                }
+                cursorTransaksi1.close();
+            } else {
+                Log.d("DatabaseTransaksi", "Cursor Transaksi1 null");
+            }
+
+            totalSaldo = totalTransaksi - totalTransaksi1;
+            Log.d("DatabaseTransaksi", "Total Saldo: " + totalSaldo);
+        } else {
+            Log.d("DatabaseTransaksi", "Database tidak terbuka");
+        }
+
+        return totalSaldo;
+    }
+
 
 
 }
+
+

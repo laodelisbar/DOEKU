@@ -91,9 +91,10 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:backgroundTint="#D3D3D3"
                 android:contentDescription="Hapus"
-                app:srcCompat="@drawable/titik3"
-                android:backgroundTint="#D3D3D3"/>
+                app:srcCompat="@drawable/titik3" />
 
             <TextView
                 android:id="@+id/nominal_prefix2"

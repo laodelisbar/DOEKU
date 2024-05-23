@@ -20,7 +20,7 @@ public class DatabaseTransaksi1 extends SQLiteOpenHelper {
     private Context context;
     private static final String DATABASE_NAME = "BookLibraryTransaksi1.db";
     private static final int DATABASE_VERSION = 1;
-    private static final String TABLE_NAME = "transaksi";
+    public static final String TABLE_NAME = "transaksi";
     private static final String COLUMN_ID = "id_transaksi";
     private static final String COLUMN_ID_KATEGORI = "id_kategori";
     private static final String COLUMN_SUMBER_DANA = "id_sumber_dana";
